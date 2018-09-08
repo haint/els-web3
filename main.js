@@ -64,12 +64,14 @@ async function indexTransactions(currentBlock) {
           id: transaction.hash,
           body: data
         })
-
-        fs.writeFileSync('./index.last', i, err => {
-          console.log(err)
-        })
       }
+
+      fs.writeFileSync('./index.last', i, err => {
+        console.log(err)
+      })
+
       console.log('Index %d transactions of block %d in %s (ms)', block.transactions.length, i, new Date() - start)
+      
     } catch (err) {
       console.log("Occurs an error", err)
     }
