@@ -44,15 +44,15 @@ async function indexTransactions(currentBlock) {
         data.gas = transaction.gas
         data.gasPrice = gasPrice.toNumber()
 
-        const receipt = await web3.eth.getTransactionReceipt(transaction.hash)
+        // const receipt = await web3.eth.getTransactionReceipt(transaction.hash)
 
-        data.gasUsed = receipt.gasUsed
-        data.status = web3.toDecimal(receipt.status)
-        data.timestamp = block.timestamp
+        // data.gasUsed = receipt.gasUsed
+        // data.status = web3.toDecimal(receipt.status)
+        // data.timestamp = block.timestamp
 
         const existed = await client.exists({
           index: 'eth',
-          type: '_doc',
+          type: '_tran',
           id: transaction.hash
         })
 
@@ -60,10 +60,12 @@ async function indexTransactions(currentBlock) {
 
         await client.create({
           index: 'eth',
-          type: '_doc',
+          type: '_tran',
           id: transaction.hash,
           body: data
         })
+
+        console.log('Index transaction', transaction.hash)
       }
 
       fs.writeFileSync('./index.last', i, err => {
@@ -71,7 +73,7 @@ async function indexTransactions(currentBlock) {
       })
 
       console.log('Index %d transactions of block %d in %s (ms)', block.transactions.length, i, new Date() - start)
-      
+
     } catch (err) {
       console.log("Occurs an error", err)
     }
