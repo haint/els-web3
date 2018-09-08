@@ -43,12 +43,12 @@ async function indexTransactions(currentBlock) {
         data.valueStr = value.toString()
         data.gas = transaction.gas
         data.gasPrice = gasPrice.toNumber()
+        data.timestamp = block.timestamp
 
         // const receipt = await web3.eth.getTransactionReceipt(transaction.hash)
 
         // data.gasUsed = receipt.gasUsed
         // data.status = web3.toDecimal(receipt.status)
-        // data.timestamp = block.timestamp
 
         const existed = await client.exists({
           index: 'eth_trans',
