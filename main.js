@@ -51,16 +51,16 @@ async function indexTransactions(currentBlock) {
         // data.timestamp = block.timestamp
 
         const existed = await client.exists({
-          index: 'eth',
-          type: '_tran',
+          index: 'eth_trans',
+          type: '_doc',
           id: transaction.hash
         })
 
         if (existed) continue
 
         await client.create({
-          index: 'eth',
-          type: '_tran',
+          index: 'eth_trans',
+          type: '_doc',
           id: transaction.hash,
           body: data
         })

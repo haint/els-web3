@@ -6,7 +6,7 @@ var client = new els.Client({
 })
 
 client.indices.create({
-  index: 'eth',
+  index: 'eth_trans',
   body: {
     settings: {
       index: {

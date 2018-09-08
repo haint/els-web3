@@ -6,7 +6,7 @@ var client = new els.Client({
 })
 
 client.indices.delete({
-  index: 'eth'
+  index: 'eth_trans'
 }, (err, resp) => {
   if (err) console.log('Error: ', err)
   else console.log('Result: ', resp)
