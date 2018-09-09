@@ -5,15 +5,15 @@ const BigNumber = require('bignumber.js')
 const fs = require('fs');
 
 const web3 = new Web3()
-web3.setProvider(new web3.providers.HttpProvider("http://geth-node:8545"))
+web3.setProvider(new web3.providers.HttpProvider("https://mainnet.infura.io/v3/b48465719cae4527b984c1b2a5767c3e"))
 
 const client = new els.Client({
   host: 'els-demo:9200',
   log: 'info'
 })
 
-const sync = web3.eth.syncing 
-const currentBlock = sync.currentBlock
+// const sync = web3.eth.syncing 
+const currentBlock = web3.eth.blockNumber
 
 console.log(currentBlock)
 
