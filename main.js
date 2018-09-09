@@ -12,13 +12,18 @@ const client = new els.Client({
   log: 'info'
 })
 
-// const sync = web3.eth.syncing 
+const args = process.argv.slice(2)
+
+const start = args[0]
+const end = args[1]
+
 const currentBlock = web3.eth.blockNumber
+console.log('Highest block', currentBlock)
 
-console.log(currentBlock)
+if (start > currentBlock) start = currentBlock
 
-async function indexTransactions(currentBlock) {
-  for (var i = currentBlock; i >=0; i--) {
+async function indexTransactions(start, end) {
+  for (var i = start; i < end; i++) {
 
     try {
       const start = new Date()
@@ -68,30 +73,12 @@ async function indexTransactions(currentBlock) {
         console.log('Index transaction', transaction.hash)
       }
 
-      fs.writeFileSync('./index.last', i, err => {
-        console.log(err)
-      })
-
       console.log('Index %d transactions of block %d in %s (ms)', block.transactions.length, i, new Date() - start)
 
     } catch (err) {
       console.log("Occurs an error", err)
     }
-  
-    // web3.eth.getBlock(i, true, (err, result) => {
-  
-    //   console.log(err)
-  
-    //   console.log(result)
-  
-    //   const start = new Date()
-    //   console.log('Index transactions of block:', i)
-  
-    //   
-  
-    //   console.log('End index block\'s transactions in ', new Date() - start)
-    // })
   }
 }
 
-indexTransactions(currentBlock)
+indexTransactions(start, end)
