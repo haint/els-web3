@@ -14,8 +14,8 @@ const client = new els.Client({
 
 const args = process.argv.slice(2)
 
-const start = args[0]
-const end = args[1]
+const start = parseInt(args[0])
+const end = parseInt(args[1])
 
 const currentBlock = web3.eth.blockNumber
 console.log('Highest block', currentBlock)
