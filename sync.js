@@ -21,7 +21,7 @@ async function sync() {
     size: 0,
     body: {
       aggs: {
-        max_block: { 
+        max_block: {
           max: {
             field: 'blockNumber'
           }
@@ -31,6 +31,17 @@ async function sync() {
   })
 
   const blockNumber = resp.aggregations.max_block.value
+  // 6298987
+  const args = process.argv.slice(2)
+  let resume = blockNumber
+
+  if(args[0]) {
+    resume = parseInt(args[0])
+    console.log(resume)
+  }
+
+  if (blockNumber > resume) blockNumber = resume
+
   console.log('Highest index', blockNumber)
 
   if (blockNumber === currentBlock) return
@@ -40,13 +51,45 @@ async function sync() {
     if (block.transactions.length === 0) continue
 
     console.log('%s: Submit index %d transactions of block', new Date(), block.transactions.length, i)
-    _.each(block.transactions, transaction => {
-      indexTransaction(transaction, block.timestamp)
-    })
+    for (var j = 0; j < block.transactions.length; j++) {
+      const transaction = block.transactions[j]
+      const data = {}
+      const value = new BigNumber(transaction.value).shiftedBy(-18)
+      const gasPrice = new BigNumber(transaction.gasPrice).shiftedBy(-9)
+
+      data.blockNumber = transaction.blockNumber
+      data.blockHash = transaction.blockHash
+      data.input = transaction.input
+      data.from = transaction.from
+      data.to = transaction.to
+      data.value = value.toNumber()
+      data.valueStr = value.toString()
+      data.gas = transaction.gas
+      data.gasPrice = gasPrice.toNumber()
+      data.timestamp = block.timestamp
+
+      const existed = await client.exists({
+        index: 'eth_trans',
+        type: '_doc',
+        id: transaction.hash
+      })
+
+      if (existed) continue
+
+      const start = new Date()
+
+      await client.create({
+        index: 'eth_trans',
+        type: '_doc',
+        id: transaction.hash,
+        body: data
+      })
+      console.log('Index transaction %s of block %d in %d(ms)', transaction.hash, transaction.blockNumber, new Date() - start)
+    }
   }
 }
 
-function indexTransaction(transaction, timestamp) {
+async function indexTransaction(transaction, timestamp) {
   const data = {}
   const value = new BigNumber(transaction.value).shiftedBy(-18)
   const gasPrice = new BigNumber(transaction.gasPrice).shiftedBy(-9)
@@ -63,14 +106,14 @@ function indexTransaction(transaction, timestamp) {
   data.timestamp = timestamp
 
   const start = new Date()
-  client.create({
+
+  await client.create({
     index: 'eth_trans',
     type: '_doc',
     id: transaction.hash,
     body: data
-  }, (err, resp) => {
-    if (!err) console.log('Index transaction %s of block %d in %d(ms)', transaction.hash, transaction.blockNumber, new Date() - start)
   })
+  console.log('Index transaction %s of block %d in %d(ms)', transaction.hash, transaction.blockNumber, new Date() - start)
 }
 
 var schedule = require('node-schedule')
